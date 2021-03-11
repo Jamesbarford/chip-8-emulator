@@ -342,14 +342,80 @@ void OP_Fx07()
 
 void OP_Fx0A()
 {
-	
+	uint8_t Vx = VX(opcode);
+
+	if (keypad[0])       registers[Vx] = 0;
+	else if (keypad[1])  registers[Vx] = 1;
+	else if (keypad[2])  registers[Vx] = 2;
+	else if (keypad[3])  registers[Vx] = 3;
+	else if (keypad[4])  registers[Vx] = 4;
+	else if (keypad[5])  registers[Vx] = 5;
+	else if (keypad[6])  registers[Vx] = 6;
+	else if (keypad[7])  registers[Vx] = 7;
+	else if (keypad[8])  registers[Vx] = 8;
+	else if (keypad[9])  registers[Vx] = 9;
+	else if (keypad[10]) registers[Vx] = 10;
+	else if (keypad[11]) registers[Vx] = 11;
+	else if (keypad[12]) registers[Vx] = 12;
+	else if (keypad[13]) registers[Vx] = 13;
+	else if (keypad[14]) registers[Vx] = 14;
+	else if (keypad[15]) registers[Vx] = 15;
+	else
+		pc -= 2;
 }
 
-/** OP CODES END **/
+void OP_Fx15()
+{// delay_timer = vx
+	delay_timer = registers[VX(opcode)];
+}
 
+void OP_Fx18()
+{// set the sound timer (we don't have sound)
+	return;
+}
+
+void OP_Fx1E()
+{// set I to I + Vx
+	I += registers[VX(opcode)];
+}
+
+void OP_Fx29()
+{// LD F, Vx -> set I to be the location of the sprite for digit Vx
+	uint8_t digit = registers[VX(opcode)];
+
+	I = FONT_START_ADDR + (5 * digit);
+}
+
+void OP_Fx33()
+{// LD B, Vx -> store BCD representation of Vx in memory locations, I, I + 1 and I + 2 
+	uint8_t value = registers[VX(opcode)];
+
+	memory[I + 2] = value % 10;
+	value /= 10;
+
+	memory[I + 1] = value % 10;
+	value /= 10;
+
+	memory[I] = value % 10;
+}
+
+void OP_Fx55()
+{
+	for (uint8_t i = 0; i <= registers[VX(opcode)]; ++i)
+		memory[I + i] = registers[i];
+}
+
+void OP_Fx65()
+{
+	for (uint8_t i = 0; i <= registers[VX(opcode)]; ++i)
+		registers[i] = memory[I + i];
+}
+
+
+/** OP CODES END **/
 int main(void)
 {
 	srand(time(NULL));
-	load_rom("./file.txt");
+//	load_rom("./file.txt");
 	printf("hello world\n");
 }
