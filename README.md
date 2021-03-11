@@ -1,4 +1,4 @@
-# CHIP 8 emulator
+# WIP: CHIP 8 emulator
 
 Simple Chip 8 emulator
 
