@@ -4,7 +4,7 @@
 #include "display.h"
 
 #define SCALE 10
-#define DELAY 10
+#define DELAY 3
 #define HEIGHT 32
 #define WIDTH 64
 

@@ -14,30 +14,30 @@
  * instruction set source: http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
  * **/
 
-static inline void OP_00E0(chip_8_t *chip_8)
+static void OP_00E0(chip_8_t *chip_8)
 {// CLS
 	memset(chip_8->video, 0, sizeof(chip_8->video));
 }
 
-static inline void OP_00EE(chip_8_t *chip_8)
+static void OP_00EE(chip_8_t *chip_8)
 {// RET
 	--chip_8->sp;
 	chip_8->pc = chip_8->stack[chip_8->sp];
 }
 
-static inline void OP_1nnn(chip_8_t *chip_8)
+static void OP_1nnn(chip_8_t *chip_8)
 {// JP addr
 	chip_8->pc = chip_8->opcode & 0xFFF;
 }
 
-static inline void OP_2nnn(chip_8_t *chip_8)
+static void OP_2nnn(chip_8_t *chip_8)
 {// CALL addr
 	chip_8->stack[chip_8->sp] = chip_8->pc;
 	++chip_8->sp;
 	chip_8->pc = chip_8->opcode & 0xFFF;
 }
 
-static inline void OP_3xkk(chip_8_t *chip_8)
+static void OP_3xkk(chip_8_t *chip_8)
 {// SNE -> skip next instruction if equal
 	uint8_t kk = chip_8->opcode & 0xFF;
 
@@ -45,7 +45,7 @@ static inline void OP_3xkk(chip_8_t *chip_8)
 		chip_8->pc += 2;
 }
 
-static inline void OP_4xkk(chip_8_t *chip_8)
+static void OP_4xkk(chip_8_t *chip_8)
 {// SNE -> skip next instruction if Not equal
 	uint8_t kk = chip_8->opcode & 0xFF;
 
@@ -53,47 +53,47 @@ static inline void OP_4xkk(chip_8_t *chip_8)
 		chip_8->pc += 2;
 }
 
-static inline void OP_5xy0(chip_8_t *chip_8)
+static void OP_5xy0(chip_8_t *chip_8)
 {// SE -> skip next instruction if equal
 	if (chip_8->registers[VX(chip_8->opcode)] == chip_8->registers[VY(chip_8->opcode)])
 		chip_8->pc += 2;
 }
 
-static inline void OP_6xkk(chip_8_t *chip_8)
+static void OP_6xkk(chip_8_t *chip_8)
 {// LD (bit like MOV) Vx, byte
 	uint8_t kk = chip_8->opcode & 0xFF;
 
 	chip_8->registers[VX(chip_8->opcode)] = kk;
 }
 
-static inline void OP_7xkk(chip_8_t *chip_8)
+static void OP_7xkk(chip_8_t *chip_8)
 {// ADD 
 	uint8_t kk = chip_8->opcode & 0xFF;
 
 	chip_8->registers[VX(chip_8->opcode)] += kk;
 }
 
-static inline void OP_8xy0(chip_8_t *chip_8)
+static void OP_8xy0(chip_8_t *chip_8)
 {// SET Vx = Vy
 	chip_8->registers[VX(chip_8->opcode)] = chip_8->registers[VY(chip_8->opcode)]; 
 }
 
-static inline void OP_8xy1(chip_8_t *chip_8)
+static void OP_8xy1(chip_8_t *chip_8)
 {// Vx = Vx OR Vy
 	chip_8->registers[VX(chip_8->opcode)] |= chip_8->registers[VY(chip_8->opcode)]; 
 }
 
-static inline void OP_8xy2(chip_8_t *chip_8)
+static void OP_8xy2(chip_8_t *chip_8)
 {// Vx = Vx AND Vy
 	chip_8->registers[VX(chip_8->opcode)] &= chip_8->registers[VY(chip_8->opcode)]; 
 }
 
-static inline void OP_8xy3(chip_8_t *chip_8)
+static void OP_8xy3(chip_8_t *chip_8)
 {// Vx = Vx XOR Vy
 	chip_8->registers[VX(chip_8->opcode)] ^= chip_8->registers[VY(chip_8->opcode)]; 
 }
 
-static inline void OP_8xy4(chip_8_t *chip_8)
+static void OP_8xy4(chip_8_t *chip_8)
 {// ADD Vx Vy,  set VF = carry flag, only lower 8 bits stored in Vx
 	uint32_t result = chip_8->registers[VX(chip_8->opcode)] + chip_8->registers[VY(chip_8->opcode)];
 	
@@ -101,7 +101,7 @@ static inline void OP_8xy4(chip_8_t *chip_8)
 	chip_8->registers[VX(chip_8->opcode)] = result & 0xFF;
 }
 
-static inline void OP_8xy5(chip_8_t *chip_8)
+static void OP_8xy5(chip_8_t *chip_8)
 {// SUB Vx,Vy,  Vx = Vx - Vy, set VF = NOT borrow
 	uint8_t Vx = VX(chip_8->opcode);
 	uint8_t Vy = VY(chip_8->opcode);
@@ -110,7 +110,7 @@ static inline void OP_8xy5(chip_8_t *chip_8)
 	chip_8->registers[Vx] -= chip_8->registers[Vy];
 }
 
-static inline void OP_8xy6(chip_8_t *chip_8)
+static void OP_8xy6(chip_8_t *chip_8)
 {// Vx = Vx SHR1 if the least significant bit of Vx is 1. Then Vx is divided by 2	
 	uint8_t Vx = VX(chip_8->opcode);
 	
@@ -118,7 +118,7 @@ static inline void OP_8xy6(chip_8_t *chip_8)
 	chip_8->registers[Vx] /= 2;
 }
 
-static inline void OP_8xy7(chip_8_t *chip_8)
+static void OP_8xy7(chip_8_t *chip_8)
 {// Vx = Vy - Vx, VF = NOT BORROW
 	uint8_t Vx = VX(chip_8->opcode);
 	uint8_t Vy = VY(chip_8->opcode);
@@ -127,7 +127,7 @@ static inline void OP_8xy7(chip_8_t *chip_8)
 	chip_8->registers[Vx] = chip_8->registers[Vy] - chip_8->registers[Vx];
 }
 
-static inline void OP_8xyE(chip_8_t *chip_8)
+static void OP_8xyE(chip_8_t *chip_8)
 {// Vx = Vx SHL 1. if most significant bit is 1, VF is set to one. Then Vx * 2
 	uint8_t Vx = VX(chip_8->opcode);
 	
@@ -135,28 +135,28 @@ static inline void OP_8xyE(chip_8_t *chip_8)
 	chip_8->registers[Vx] *= 2;
 }
 
-static inline void OP_9xy0(chip_8_t *chip_8)
+static void OP_9xy0(chip_8_t *chip_8)
 {// SNE Vx, Vy. skip if Vx != Vy
 	if (chip_8->registers[VX(chip_8->opcode)] != chip_8->registers[VY(chip_8->opcode)])
 		chip_8->pc += 2;
 }
 
-static inline void OP_Annn(chip_8_t *chip_8)
+static void OP_Annn(chip_8_t *chip_8)
 {// SET I = nnn. Register I set to nnn
 	chip_8->I = chip_8->opcode & 0xFFF;
 }
 
-static inline void OP_Bnnn(chip_8_t *chip_8)
+static void OP_Bnnn(chip_8_t *chip_8)
 {// JP nnn + V0
 	chip_8->pc = chip_8->registers[0] + (chip_8->opcode & 0xFFF);
 }
 
-static inline void OP_Cxkk(chip_8_t *chip_8)
+static void OP_Cxkk(chip_8_t *chip_8)
 {// SET Vx = Random byte AND kk.
 	chip_8->registers[VX(chip_8->opcode)] = (rand() % 255) & 0xF;
 }
 
-static inline void OP_Dxyn(chip_8_t *chip_8)
+static void OP_Dxyn(chip_8_t *chip_8)
 {// Display n-byte sprite starting at memory Location I at (Vx, Vy), set VF = collision
 	uint8_t height = chip_8->opcode & 0xF;
 	uint8_t sprite_byte, sprite_pixel;
@@ -186,26 +186,26 @@ static inline void OP_Dxyn(chip_8_t *chip_8)
 	}
 }
 
-static inline void OP_Ex9E(chip_8_t *chip_8)
+static void OP_Ex9E(chip_8_t *chip_8)
 {// SKP Vx, if key pressed
 	uint8_t key = chip_8->registers[VX(chip_8->opcode)];
 	if (chip_8->keypad[key])
 		chip_8->pc += 2;
 }
 
-static inline void OP_ExA1(chip_8_t *chip_8)
+static void OP_ExA1(chip_8_t *chip_8)
 {// skip if key not pressed
 	uint8_t key = chip_8->registers[VX(chip_8->opcode)];
 	if (!chip_8->keypad[key])
 		chip_8->pc += 2;
 }
 
-static inline void OP_Fx07(chip_8_t *chip_8)
+static void OP_Fx07(chip_8_t *chip_8)
 {
 	chip_8->registers[VX(chip_8->opcode)] = chip_8->delay_timer;
 }
 
-static inline void OP_Fx0A(chip_8_t *chip_8)
+static void OP_Fx0A(chip_8_t *chip_8)
 {
 	uint8_t Vx = VX(chip_8->opcode);
 
@@ -229,29 +229,29 @@ static inline void OP_Fx0A(chip_8_t *chip_8)
 		chip_8->pc -= 2;
 }
 
-static inline void OP_Fx15(chip_8_t *chip_8)
+static void OP_Fx15(chip_8_t *chip_8)
 {// delay_timer = vx
 	chip_8->delay_timer = chip_8->registers[VX(chip_8->opcode)];
 }
 
-static inline void OP_Fx18()
+static void OP_Fx18()
 {// set the sound timer (we don't have sound)
 	return;
 }
 
-static inline void OP_Fx1E(chip_8_t *chip_8)
+static void OP_Fx1E(chip_8_t *chip_8)
 {// set I to I + Vx
 	chip_8->I += chip_8->registers[VX(chip_8->opcode)];
 }
 
-static inline void OP_Fx29(chip_8_t *chip_8)
+static void OP_Fx29(chip_8_t *chip_8)
 {// LD F, Vx -> set I to be the location of the sprite for digit Vx
 	uint8_t digit = chip_8->registers[VX(chip_8->opcode)];
 
 	chip_8->I = FONT_START_ADDR + (5 * digit);
 }
 
-static inline void OP_Fx33(chip_8_t *chip_8)
+static void OP_Fx33(chip_8_t *chip_8)
 {// LD B, Vx -> store BCD representation of Vx in memory locations, I, I + 1 and I + 2 
 	uint8_t value = chip_8->registers[VX(chip_8->opcode)];
 
@@ -264,13 +264,13 @@ static inline void OP_Fx33(chip_8_t *chip_8)
 	chip_8->memory[chip_8->I] = value % 10;
 }
 
-static inline void OP_Fx55(chip_8_t *chip_8)
+static void OP_Fx55(chip_8_t *chip_8)
 {
 	for (uint8_t i = 0; i <= chip_8->registers[VX(chip_8->opcode)]; ++i)
 		chip_8->memory[chip_8->I + i] = chip_8->registers[i];
 }
 
-static inline void OP_Fx65(chip_8_t *chip_8)
+static void OP_Fx65(chip_8_t *chip_8)
 {
 	for (uint8_t i = 0; i <= chip_8->registers[VX(chip_8->opcode)]; ++i)
 		chip_8->registers[i] = chip_8->memory[chip_8->I + i];
@@ -280,59 +280,66 @@ static inline void OP_Fx65(chip_8_t *chip_8)
 void call_instruction(chip_8_t *chip_8)
 {// create virtual jumptable
 	switch (chip_8->opcode & 0xF000) {
-		case 0x0000:
+		case 0x0000: {
 			switch (chip_8->opcode & 0x000F) {
-				case 0x0000: OP_00E0(chip_8); break;
-				case 0x000E: OP_00EE(chip_8); break;
-				default: goto invalid; break;
+				case 0x0000: OP_00E0(chip_8); return;
+				case 0x000E: OP_00EE(chip_8); return;
+				default: goto invalid; return;
 			}
-			break;
-		case 0x1000: OP_1nnn(chip_8); break;
-		case 0x2000: OP_2nnn(chip_8); break;
-		case 0x3000: OP_3xkk(chip_8); break;
-		case 0x4000: OP_4xkk(chip_8); break;
-		case 0x5000: OP_5xy0(chip_8); break;
-		case 0x6000: OP_6xkk(chip_8); break;
-		case 0x7000: OP_7xkk(chip_8); break;
-		case 0x8000:
+			return;
+		}
+		case 0x1000: OP_1nnn(chip_8); return;
+		case 0x2000: OP_2nnn(chip_8); return;
+		case 0x3000: OP_3xkk(chip_8); return;
+		case 0x4000: OP_4xkk(chip_8); return;
+		case 0x5000: OP_5xy0(chip_8); return;
+		case 0x6000: OP_6xkk(chip_8); return;
+		case 0x7000: OP_7xkk(chip_8); return;
+		case 0x8000: {
 			switch (chip_8->opcode & 0x000F) {
-				case 0x0000: OP_8xy0(chip_8); break;
-				case 0x0001: OP_8xy1(chip_8); break;
-				case 0x0002: OP_8xy2(chip_8); break;
-				case 0x0003: OP_8xy3(chip_8); break;
-				case 0x0004: OP_8xy4(chip_8); break;
-				case 0x0005: OP_8xy5(chip_8); break;
-				case 0x0006: OP_8xy6(chip_8); break;
-				case 0x0007: OP_8xy7(chip_8); break;
-				case 0x000E: OP_8xyE(chip_8); break;
-				default: goto invalid; break;
+				case 0x0000: OP_8xy0(chip_8); return;
+				case 0x0001: OP_8xy1(chip_8); return;
+				case 0x0002: OP_8xy2(chip_8); return;
+				case 0x0003: OP_8xy3(chip_8); return;
+				case 0x0004: OP_8xy4(chip_8); return;
+				case 0x0005: OP_8xy5(chip_8); return;
+				case 0x0006: OP_8xy6(chip_8); return;
+				case 0x0007: OP_8xy7(chip_8); return;
+				case 0x000E: OP_8xyE(chip_8); return;
+				default: goto invalid; return;
 			}
-			break;
-		case 0xA000: OP_Annn(chip_8); break;
-		case 0xB000: OP_Bnnn(chip_8); break;
-		case 0xC000: OP_Cxkk(chip_8); break;
-		case 0xD000: OP_Dxyn(chip_8); break;
-		case 0xE000:
+			return;
+		}
+		case 0x9000: OP_9xy0(chip_8); return;
+		case 0xA000: OP_Annn(chip_8); return;
+		case 0xB000: OP_Bnnn(chip_8); return;
+		case 0xC000: OP_Cxkk(chip_8); return;
+		case 0xD000: OP_Dxyn(chip_8); return;
+		case 0xE000: {
 			switch (chip_8->opcode & 0x000F) {
-				case 0x000E: OP_Ex9E(chip_8); break;
-				case 0x0001: OP_ExA1(chip_8); break;
-				default: goto invalid; break;
+				case 0x000E: OP_Ex9E(chip_8); return;
+				case 0x0001: OP_ExA1(chip_8); return;
+				default: goto invalid; return;
 			}
-			break;
-		case 0xF000:
+			return;
+		}
+		case 0xF000: {
 			switch (chip_8->opcode & 0x00FF) {
-				case 0x0007: OP_Fx07(chip_8); break;
-				case 0x000A: OP_Fx0A(chip_8); break;
-				case 0x0015: OP_Fx15(chip_8); break;
-				case 0x0018: OP_Fx18(); break;
-				case 0x001E: OP_Fx1E(chip_8); break;
-				case 0x0029: OP_Fx29(chip_8); break;
-				case 0x0033: OP_Fx33(chip_8); break;
-				case 0x0055: OP_Fx55(chip_8); break;
-				case 0x0065: OP_Fx65(chip_8); break;
-				default: goto invalid; break;
+				case 0x0007: OP_Fx07(chip_8); return;
+				case 0x000A: OP_Fx0A(chip_8); return;
+				case 0x0015: OP_Fx15(chip_8); return;
+				case 0x0018: OP_Fx18(); return;
+				case 0x001E: OP_Fx1E(chip_8); return;
+				case 0x0029: OP_Fx29(chip_8); return;
+				case 0x0033: OP_Fx33(chip_8); return;
+				case 0x0055: OP_Fx55(chip_8); return;
+				case 0x0065: OP_Fx65(chip_8); return;
+				default: goto invalid; return;
 			}
-			default: goto invalid; break;
+			return;
+		}
+		default: goto invalid; return;
+
 	}
 
 invalid:
