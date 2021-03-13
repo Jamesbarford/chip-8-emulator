@@ -420,8 +420,9 @@ void  call_instruction()
 			switch (opcode & 0x000F) {
 				case 0x0000: OP_00E0(); break;
 				case 0x000E: OP_00EE(); break;
-				default: printf("Unknown opcode: 0x%04X\n", opcode); break;
+				default: goto invalid; break;
 			}
+			break;
 		case 0x1000: OP_1nnn(); break;
 		case 0x2000: OP_2nnn(); break;
 		case 0x3000: OP_3xkk(); break;
@@ -440,8 +441,9 @@ void  call_instruction()
 				case 0x0006: OP_8xy6(); break;
 				case 0x0007: OP_8xy7(); break;
 				case 0x000E: OP_8xyE(); break;
-				default: printf("Unknown opcode:  0x%04X\n", opcode); break;
+				default: goto invalid; break;
 			}
+			break;
 		case 0xA000: OP_Annn(); break;
 		case 0xB000: OP_Bnnn(); break;
 		case 0xC000: OP_Cxkk(); break;
@@ -450,8 +452,9 @@ void  call_instruction()
 			switch (opcode & 0x000F) {
 				case 0x000E: OP_Ex9E(); break;
 				case 0x0001: OP_ExA1(); break;
-				default: printf("Unknown opcode:  0x%04X\n", opcode); break;
+				default: goto invalid; break;
 			}
+			break;
 		case 0xF000:
 			switch (opcode & 0x00FF) {
 				case 0x0007: OP_Fx07(); break;
@@ -463,9 +466,13 @@ void  call_instruction()
 				case 0x0033: OP_Fx33(); break;
 				case 0x0055: OP_Fx55(); break;
 				case 0x0065: OP_Fx65(); break;
-				default: printf("Unknown opcode:  0x%04X\n", opcode); break;
+				default: goto invalid; break;
 			}
+			default: goto invalid; break;
 	}
+
+invalid:
+	printf("Unknown opcode: 0x%04X\n", opcode); 
 }
 
 
