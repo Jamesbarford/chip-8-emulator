@@ -1,31 +1,21 @@
-OUT_DIR	= output
+OBJ_DIR	= ./output
 SRC = ./src
-LINK_TARGET = chip_8.out
-SRC_FILES = $(shell find $(SRC) -name '*.c')
-OBJS = $(patsubst $(SRC)/%.c, $(OUT_DIR)/%.o, $(SRC_FILES))
-REBUILDABLES = $(OBJS) $(LINK_TARGET)
-CC_FLAGS = -std=gnu17 -Wall -Werror -Wextra -Wpedantic -Wno-shadow -g -O0
-
+TARGET = chip_8.out
+CFLAGS = -std=gnu17 -Wall -Werror -Wextra -Wpedantic -Wno-shadow -g -O0
 CC = gcc
-OUTPUT_FOLDERS = $(addprefix $(OUT_DIR)/, $(notdir $(patsubst $(SRC), , $(shell find $(SRC) -maxdepth 5 -type d))))
 
-all: $(LINK_TARGET)
-	@echo "compilation success ✅"
+${OBJ_DIR}/%.o: ${SRC}/%.c
+	${CC} -c ${CFLAGS} -o $@ $<
 
-$(LINK_TARGET): $(OBJS)
-	$(CC) $(CC_FLAGS) -o $@ $^
-
-$(OUT_DIR)/%.o: $(SRC)/%.c
-	$(CC) $(CC_FLAGS) -o $@ -c $<
+all: ${TARGET}
 
 clean:
-	rm -rf $(OUT_DIR)/*
-	rm $(LINK_TARGET)
-	@echo "clean done ✨"
+	rm ${TARGET}
+	rm ${OBJ_DIR}/%.o
 
-init:
-	mkdir -p $(OUT_DIR) $(OUTPUT_FOLDERS)
-	@$(MAKE)
+OBJLIST = ${OBJ_DIR}/main.o
 
-run:
-	./$(LINK_TARGET)
+${TARGET}: ${OBJLIST}
+	${CC} -o ${TARGET} ${OBJLIST}
+
+${OBJ_DIR}/main.o: ${SRC}/main.c
