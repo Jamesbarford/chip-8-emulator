@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <string.h>
 #include <time.h>
 
@@ -90,9 +91,8 @@ void init()
 void load_rom(char *filename)
 {
 	struct stat file_stat;
-	int fd, idx = 0;
-	ssize_t bytes;
-	char c;
+	int fd;
+	char *rom;
 
 	if ((fd = open(filename, O_RDONLY)) == -1)
 	{
@@ -106,20 +106,16 @@ void load_rom(char *filename)
 		exit(EXIT_FAILURE);
 	}
 
-	char buf[file_stat.st_size];
-
-	// this could load it straight into memory and error if the size is too big
-	if ((bytes = read(fd, buf, file_stat.st_size)) == -1)
+	if ((rom = mmap(NULL, file_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED) 
 	{
-		fprintf(stderr, "Failed to read file '%s': %s", filename, strerror(errno));
+		fprintf(stderr, "Failed to mmap rom: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
-	buf[bytes] = '\0';
-	
-	while ((c = buf[idx++]) != '\0')
-		memory[MEM_START_ADDR + (idx - 1)] = c;
+	for (int64_t i = 0; i < file_stat.st_size; ++i)
+		memory[MEM_START_ADDR + (i - 1)] = rom[i];
 
+	(void)munmap(rom, file_stat.st_size);
 	(void)close(fd);
 }
 
