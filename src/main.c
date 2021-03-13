@@ -40,6 +40,9 @@ uint16_t stack[16];
 uint16_t opcode;
 uint32_t video[64 * 32];
 
+// wrapper for switch case deciding which op to call predicated on the opcode
+void call_instruction();
+
 uint8_t fontset[FONTSET_SIZE] = 
 {
 	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -124,18 +127,17 @@ void emulate_cycle()
 {
 	opcode = memory[pc] << 8 | memory[pc + 1];
 
-	switch (opcode & 0xF000) {
-		case 0xA000:
-			break;
-		default:
-			fprintf(stderr, "Invalid opcode: 0x%X\n", opcode);
-			exit(EXIT_FAILURE);
-	}
+	pc += 2;
+
+	// get correct function pointer;	
+	call_instruction();
 
 	if (delay_timer > 0)
 		--delay_timer;
 
-	// sound timer;
+	// we don't have sound but if we did it would go here
+	// if (sound_timer > 0)
+	//		--sound_timer;
 }
 
 /** OP CODES START
@@ -149,30 +151,30 @@ void emulate_cycle()
  * instruction set source: http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
  * **/
 
-void OP_00E0()
+static inline void OP_00E0()
 {// CLS
 	memset(video, 0, sizeof(video));
 }
 
-void OP_00EE()
+static inline void OP_00EE()
 {// RET
 	--sp;
 	pc = stack[sp];
 }
 
-void OP_lnnn()
+static inline void OP_1nnn()
 {// JP addr
 	pc = opcode & 0xFFF;
 }
 
-void OP_2nnn()
+static inline void OP_2nnn()
 {// CALL addr
 	stack[sp] = pc;
 	++sp;
 	pc = opcode & 0xFFF;
 }
 
-void OP_3xkk()
+static inline void OP_3xkk()
 {// SNE -> skip next instruction if equal
 	uint8_t kk = opcode & 0xFF;
 
@@ -180,7 +182,7 @@ void OP_3xkk()
 		pc += 2;
 }
 
-void OP_4xkk()
+static inline void OP_4xkk()
 {// SNE -> skip next instruction if Not equal
 	uint8_t kk = opcode & 0xFF;
 
@@ -188,47 +190,47 @@ void OP_4xkk()
 		pc += 2;
 }
 
-void OP_5xy0()
+static inline void OP_5xy0()
 {// SE -> skip next instruction if equal
 	if (registers[VX(opcode)] == registers[VY(opcode)])
 		pc += 2;
 }
 
-void OP_6xkk()
+static inline void OP_6xkk()
 {// LD (bit like MOV) Vx, byte
 	uint8_t kk = opcode & 0xFF;
 
 	registers[VX(opcode)] = kk;
 }
 
-void OP_7xkk()
+static inline void OP_7xkk()
 {// ADD 
 	uint8_t kk = opcode & 0xFF;
 
 	registers[VX(opcode)] += kk;
 }
 
-void OP_8xy0()
+static inline void OP_8xy0()
 {// SET Vx = Vy
 	registers[VX(opcode)] = registers[VY(opcode)]; 
 }
 
-void OP_8xy1()
+static inline void OP_8xy1()
 {// Vx = Vx OR Vy
 	registers[VX(opcode)] |= registers[VY(opcode)]; 
 }
 
-void OP_8xy2()
+static inline void OP_8xy2()
 {// Vx = Vx AND Vy
 	registers[VX(opcode)] &= registers[VY(opcode)]; 
 }
 
-void OP_8xy3()
+static inline void OP_8xy3()
 {// Vx = Vx XOR Vy
 	registers[VX(opcode)] ^= registers[VY(opcode)]; 
 }
 
-void OP_8xy4()
+static inline void OP_8xy4()
 {// ADD Vx Vy,  set VF = carry flag, only lower 8 bits stored in Vx
 	uint32_t result = registers[VX(opcode)] + registers[VY(opcode)];
 	
@@ -236,7 +238,7 @@ void OP_8xy4()
 	registers[VX(opcode)] = result & 0xFF;
 }
 
-void OP_8xy5()
+static inline void OP_8xy5()
 {// SUB Vx,Vy,  Vx = Vx - Vy, set VF = NOT borrow
 	uint8_t Vx = VX(opcode);
 	uint8_t Vy = VY(opcode);
@@ -245,7 +247,7 @@ void OP_8xy5()
 	registers[Vx] -= registers[Vy];
 }
 
-void OP_8xy6()
+static inline void OP_8xy6()
 {// Vx = Vx SHR1 if the least significant bit of Vx is 1. Then Vx is divided by 2	
 	uint8_t Vx = VX(opcode);
 	
@@ -253,7 +255,7 @@ void OP_8xy6()
 	registers[Vx] /= 2;
 }
 
-void OP_8xy7()
+static inline void OP_8xy7()
 {// Vx = Vy - Vx, VF = NOT BORROW
 	uint8_t Vx = VX(opcode);
 	uint8_t Vy = VY(opcode);
@@ -262,7 +264,7 @@ void OP_8xy7()
 	registers[Vx] = registers[Vy] - registers[Vx];
 }
 
-void OP_8xyE()
+static inline void OP_8xyE()
 {// Vx = Vx SHL 1. if most significant bit is 1, VF is set to one. Then Vx * 2
 	uint8_t Vx = VX(opcode);
 	
@@ -270,28 +272,28 @@ void OP_8xyE()
 	registers[Vx] *= 2;
 }
 
-void OP_9xy0()
+static inline void OP_9xy0()
 {// SNE Vx, Vy. skip if Vx != Vy
 	if (registers[VX(opcode)] != registers[VY(opcode)])
 		pc += 2;
 }
 
-void OP_Annn()
+static inline void OP_Annn()
 {// SET I = nnn. Register I set to nnn
 	I = opcode & 0xFFF;
 }
 
-void OP_Bnnn()
+static inline void OP_Bnnn()
 {// JP nnn + V0
 	pc = registers[0] + (opcode & 0xFFF);
 }
 
-void OP_Cxkk()
+static inline void OP_Cxkk()
 {// SET Vx = Random byte AND kk.
 	registers[VX(opcode)] = rand_byte() & 0xF;
 }
 
-void OP_Dxyn()
+static inline void OP_Dxyn()
 {// Display n-byte sprite starting at memory Location I at (Vx, Vy), set VF = collision
 	uint8_t height = opcode & 0xF;
 	uint8_t sprite_byte, sprite_pixel;
@@ -321,30 +323,30 @@ void OP_Dxyn()
 	}
 }
 
-void OP_Ex9E()
+static inline void OP_Ex9E()
 {// SKP Vx, if key pressed
 	uint8_t key = registers[VX(opcode)];
 	if (keypad[key])
 		pc += 2;
 }
 
-void OP_ExA1()
+static inline void OP_ExA1()
 {// skip if key not pressed
 	uint8_t key = registers[VX(opcode)];
 	if (!keypad[key])
 		pc += 2;
 }
 
-void OP_Fx07()
+static inline void OP_Fx07()
 {
 	registers[VX(opcode)] = delay_timer;
 }
 
-void OP_Fx0A()
+static inline void OP_Fx0A()
 {
 	uint8_t Vx = VX(opcode);
 
-	if (keypad[0])       registers[Vx] = 0;
+	if      (keypad[0])  registers[Vx] = 0;
 	else if (keypad[1])  registers[Vx] = 1;
 	else if (keypad[2])  registers[Vx] = 2;
 	else if (keypad[3])  registers[Vx] = 3;
@@ -364,29 +366,29 @@ void OP_Fx0A()
 		pc -= 2;
 }
 
-void OP_Fx15()
+static inline void OP_Fx15()
 {// delay_timer = vx
 	delay_timer = registers[VX(opcode)];
 }
 
-void OP_Fx18()
+static inline void OP_Fx18()
 {// set the sound timer (we don't have sound)
 	return;
 }
 
-void OP_Fx1E()
+static inline void OP_Fx1E()
 {// set I to I + Vx
 	I += registers[VX(opcode)];
 }
 
-void OP_Fx29()
+static inline void OP_Fx29()
 {// LD F, Vx -> set I to be the location of the sprite for digit Vx
 	uint8_t digit = registers[VX(opcode)];
 
 	I = FONT_START_ADDR + (5 * digit);
 }
 
-void OP_Fx33()
+static inline void OP_Fx33()
 {// LD B, Vx -> store BCD representation of Vx in memory locations, I, I + 1 and I + 2 
 	uint8_t value = registers[VX(opcode)];
 
@@ -399,16 +401,71 @@ void OP_Fx33()
 	memory[I] = value % 10;
 }
 
-void OP_Fx55()
+static inline void OP_Fx55()
 {
 	for (uint8_t i = 0; i <= registers[VX(opcode)]; ++i)
 		memory[I + i] = registers[i];
 }
 
-void OP_Fx65()
+static inline void OP_Fx65()
 {
 	for (uint8_t i = 0; i <= registers[VX(opcode)]; ++i)
 		registers[i] = memory[I + i];
+}
+
+void  call_instruction()
+{// create virtual jumptable
+	switch (opcode & 0xF000) {
+		case 0x0000:
+			switch (opcode & 0x000F) {
+				case 0x0000: OP_00E0(); break;
+				case 0x000E: OP_00EE(); break;
+				default: printf("Unknown opcode: 0x%04X\n", opcode); break;
+			}
+		case 0x1000: OP_1nnn(); break;
+		case 0x2000: OP_2nnn(); break;
+		case 0x3000: OP_3xkk(); break;
+		case 0x4000: OP_4xkk(); break;
+		case 0x5000: OP_5xy0(); break;
+		case 0x6000: OP_6xkk(); break;
+		case 0x7000: OP_7xkk(); break;
+		case 0x8000:
+			switch (opcode & 0x000F) {
+				case 0x0000: OP_8xy0(); break;
+				case 0x0001: OP_8xy1(); break;
+				case 0x0002: OP_8xy2(); break;
+				case 0x0003: OP_8xy3(); break;
+				case 0x0004: OP_8xy4(); break;
+				case 0x0005: OP_8xy5(); break;
+				case 0x0006: OP_8xy6(); break;
+				case 0x0007: OP_8xy7(); break;
+				case 0x000E: OP_8xyE(); break;
+				default: printf("Unknown opcode:  0x%04X\n", opcode); break;
+			}
+		case 0xA000: OP_Annn(); break;
+		case 0xB000: OP_Bnnn(); break;
+		case 0xC000: OP_Cxkk(); break;
+		case 0xD000: OP_Dxyn(); break;
+		case 0xE000:
+			switch (opcode & 0x000F) {
+				case 0x000E: OP_Ex9E(); break;
+				case 0x0001: OP_ExA1(); break;
+				default: printf("Unknown opcode:  0x%04X\n", opcode); break;
+			}
+		case 0xF000:
+			switch (opcode & 0x00FF) {
+				case 0x0007: OP_Fx07(); break;
+				case 0x000A: OP_Fx0A(); break;
+				case 0x0015: OP_Fx15(); break;
+				case 0x0018: OP_Fx18(); break;
+				case 0x001E: OP_Fx1E(); break;
+				case 0x0029: OP_Fx29(); break;
+				case 0x0033: OP_Fx33(); break;
+				case 0x0055: OP_Fx55(); break;
+				case 0x0065: OP_Fx65(); break;
+				default: printf("Unknown opcode:  0x%04X\n", opcode); break;
+			}
+	}
 }
 
 
