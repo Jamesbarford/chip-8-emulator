@@ -1,5 +1,6 @@
 #include "chip_8.h"
 #include "op_codes.h"
+#include <stdio.h>
 
 uint8_t fontset[FONTSET_SIZE] = 
 {
@@ -66,8 +67,10 @@ void load_rom(char *filename, chip_8_t *chip_8)
 		exit(EXIT_FAILURE);
 	}
 
+
+
 	for (int64_t i = 0; i < file_stat.st_size; ++i)
-		chip_8->memory[MEM_START_ADDR + (i - 1)] = rom[i];
+		chip_8->memory[MEM_START_ADDR + i] = rom[i];
 
 	(void)munmap(rom, file_stat.st_size);
 	(void)close(fd);
@@ -75,9 +78,11 @@ void load_rom(char *filename, chip_8_t *chip_8)
 
 void emulate_cycle(chip_8_t *chip_8)
 {
-	chip_8->opcode = chip_8->memory[chip_8->pc] << 8 | chip_8->memory[chip_8->pc + 1];
+	chip_8->opcode = (chip_8->memory[chip_8->pc] << 8) | chip_8->memory[chip_8->pc + 1];
 
 	chip_8->pc += 2;
+
+	printf("opcode: 0x%04X\n", chip_8->opcode);
 
 	// get correct function pointer;	
 	call_instruction(chip_8);

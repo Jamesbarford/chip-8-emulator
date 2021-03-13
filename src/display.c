@@ -1,4 +1,5 @@
 #include "display.h"
+#include <SDL2/SDL_pixels.h>
 
 display_t *alloc_display(char *win_name, uint32_t win_width, uint32_t win_height, uint32_t texture_width, uint32_t texture_height)
 {
@@ -14,7 +15,7 @@ display_t *alloc_display(char *win_name, uint32_t win_width, uint32_t win_height
 	
 	display->window = SDL_CreateWindow(win_name, 0, 0, win_width, win_height, SDL_WINDOW_SHOWN);
 	display->renderer = SDL_CreateRenderer(display->window, -1, SDL_RENDERER_ACCELERATED);
-	display->texture = SDL_CreateTexture(display->renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, texture_width, texture_height);
+	display->texture = SDL_CreateTexture(display->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, texture_width, texture_height);
 
 	return display;
 }

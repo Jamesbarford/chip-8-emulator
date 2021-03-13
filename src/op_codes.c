@@ -1,7 +1,8 @@
 #include "op_codes.h"
+#include <stdint.h>
 
-#define VX(x) ((x >> 12) & 0xF)
-#define VY(y) ((y >> 4)  & 0xF)
+#define VX(x) ((x >> 8) & 0xF)
+#define VY(y) ((y >> 4) & 0xF)
 
 /** OP START
  *
@@ -131,7 +132,7 @@ static void OP_8xyE(chip_8_t *chip_8)
 {// Vx = Vx SHL 1. if most significant bit is 1, VF is set to one. Then Vx * 2
 	uint8_t Vx = VX(chip_8->opcode);
 	
-	chip_8->registers[0xF] = (chip_8->registers[Vx] >> (3 << 2) & 0xF) & 0x1;
+	chip_8->registers[0xF] = (chip_8->registers[Vx] & 0x80) >> 7;
 	chip_8->registers[Vx] *= 2;
 }
 
@@ -153,27 +154,27 @@ static void OP_Bnnn(chip_8_t *chip_8)
 
 static void OP_Cxkk(chip_8_t *chip_8)
 {// SET Vx = Random byte AND kk.
-	chip_8->registers[VX(chip_8->opcode)] = (rand() % 255) & 0xF;
+	uint16_t kk = chip_8->opcode & 0x00FF;
+
+	chip_8->registers[VX(chip_8->opcode)] = (rand() % 255) & kk;
 }
 
 static void OP_Dxyn(chip_8_t *chip_8)
 {// Display n-byte sprite starting at memory Location I at (Vx, Vy), set VF = collision
 	uint8_t height = chip_8->opcode & 0xF;
-	uint8_t sprite_byte, sprite_pixel;
 	uint8_t x = chip_8->registers[VX(chip_8->opcode)] % V_WIDTH;
 	uint8_t y = chip_8->registers[VY(chip_8->opcode)] % V_HEIGHT;
-	uint32_t *pixel;
 
 	chip_8->registers[0xF] = 0;
 
 	for (uint32_t row = 0; row < height; ++row)
 	{
-		sprite_byte = chip_8->memory[chip_8->I + row];
+		uint8_t sprite_byte = chip_8->memory[chip_8->I + row];
 
 		for (uint32_t col = 0; col < 8; ++col)
 		{
-			sprite_pixel = sprite_byte & (0x80 >> col);
-			pixel = &chip_8->video[(y + row) * V_WIDTH + (x + col)];
+			uint8_t sprite_pixel = sprite_byte & (0x80 >> col);
+			uint32_t *pixel = &chip_8->video[(y + row) * V_WIDTH + (x + col)];
 
 			if (sprite_pixel)
 			{
@@ -266,13 +267,13 @@ static void OP_Fx33(chip_8_t *chip_8)
 
 static void OP_Fx55(chip_8_t *chip_8)
 {
-	for (uint8_t i = 0; i <= chip_8->registers[VX(chip_8->opcode)]; ++i)
+	for (uint8_t i = 0; i <= VX(chip_8->opcode); ++i)
 		chip_8->memory[chip_8->I + i] = chip_8->registers[i];
 }
 
 static void OP_Fx65(chip_8_t *chip_8)
 {
-	for (uint8_t i = 0; i <= chip_8->registers[VX(chip_8->opcode)]; ++i)
+	for (uint8_t i = 0; i <= VX(chip_8->opcode); ++i)
 		chip_8->registers[i] = chip_8->memory[chip_8->I + i];
 }
 

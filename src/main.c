@@ -5,8 +5,6 @@
 
 #define SCALE 10
 #define DELAY 3
-#define HEIGHT 32
-#define WIDTH 64
 
 int main(int argc, char **argv)
 {
@@ -17,10 +15,10 @@ int main(int argc, char **argv)
 	}
 
 	struct timeval stop, start;
-	display_t *display = alloc_display("chip 8 emulator", WIDTH * SCALE, HEIGHT * SCALE, WIDTH, HEIGHT);
+	display_t *display = alloc_display("chip 8 emulator", V_WIDTH * SCALE, V_HEIGHT * SCALE, V_WIDTH, V_HEIGHT);
 	char *rom_name = argv[1];
 	chip_8_t *chip_8 = boot_chip8(rom_name);
-	uint32_t pitch = sizeof(chip_8->video[0] * WIDTH);
+	uint32_t pitch = sizeof(chip_8->video[0] * V_WIDTH);
 
 	BOOL terminate = False;
 	gettimeofday(&start, NULL);
@@ -31,7 +29,7 @@ int main(int argc, char **argv)
 
 		gettimeofday(&stop, NULL);
 
-		double difference = (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec;
+		double difference = (stop.tv_sec - start.tv_sec) * 10000000 + stop.tv_usec - start.tv_usec;
 
 		if (difference > DELAY)
 		{

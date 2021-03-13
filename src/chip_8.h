@@ -19,8 +19,8 @@
 #define MEMORY_SIZE  4096
 #define FONTSET_SIZE 80
 
-#define V_WIDTH  400
-#define V_HEIGHT 400
+#define V_WIDTH  64
+#define V_HEIGHT 32
 
 #define MEMORY_SIZE 4096
 
