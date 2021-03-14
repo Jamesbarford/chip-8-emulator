@@ -11,7 +11,7 @@ uint8_t fontset[FONTSET_SIZE] =
 	0x90, 0x90, 0xF0, 0x10, 0x10, // 4
 	0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
 	0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-	0xF0, 0x90, 0xF0, 0x10, 0x40, // 7
+	0xF0, 0x10, 0x20, 0x40, 0x40, // 7
 	0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
 	0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
 	0xF0, 0x90, 0xF0, 0x90, 0x90, // A
@@ -67,8 +67,6 @@ void load_rom(char *filename, chip_8_t *chip_8)
 		exit(EXIT_FAILURE);
 	}
 
-
-
 	for (int64_t i = 0; i < file_stat.st_size; ++i)
 		chip_8->memory[MEM_START_ADDR + i] = rom[i];
 
@@ -81,8 +79,6 @@ void emulate_cycle(chip_8_t *chip_8)
 	chip_8->opcode = (chip_8->memory[chip_8->pc] << 8) | chip_8->memory[chip_8->pc + 1];
 
 	chip_8->pc += 2;
-
-	printf("opcode: 0x%04X\n", chip_8->opcode);
 
 	// get correct function pointer;	
 	call_instruction(chip_8);
@@ -114,4 +110,16 @@ chip_8_t *boot_chip8(char *rom_name)
 void free_chip_8(chip_8_t *c)
 {
 	if (c) free(c);
+}
+
+void print_video(chip_8_t *chip_8)
+{
+	for (uint64_t i = 0; i < V_HEIGHT; ++i)
+	{
+		for (uint64_t j = 0; j < V_WIDTH; ++j)
+		{
+			printf("%c", chip_8->video[i * V_HEIGHT + j] & 1 ? '*' : ' ');
+		}
+		printf("\n");
+	}
 }

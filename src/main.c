@@ -3,8 +3,8 @@
 #include "chip_8.h"
 #include "display.h"
 
-#define SCALE 10
-#define DELAY 3
+#define SCALE 20
+#define DELAY 3000
 
 int main(int argc, char **argv)
 {
@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	display_t *display = alloc_display("chip 8 emulator", V_WIDTH * SCALE, V_HEIGHT * SCALE, V_WIDTH, V_HEIGHT);
 	char *rom_name = argv[1];
 	chip_8_t *chip_8 = boot_chip8(rom_name);
-	uint32_t pitch = sizeof(chip_8->video[0] * V_WIDTH);
+	uint32_t pitch = sizeof(chip_8->video[0]) * V_WIDTH;
 
 	BOOL terminate = False;
 	gettimeofday(&start, NULL);
@@ -37,9 +37,11 @@ int main(int argc, char **argv)
 
 			emulate_cycle(chip_8);
 			update_display(display, chip_8->video, pitch);
+			print_video(chip_8);
 		}
 	}
 
+	free_display(display);
 	free_chip_8(chip_8);
 	
 	return 0;

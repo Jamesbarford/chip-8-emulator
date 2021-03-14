@@ -42,12 +42,13 @@ typedef struct chip_8_t {
 	uint16_t I; /* generally used for memory addresses  */
 	uint16_t pc; /* program counter  */
 	uint16_t stack[16];
-	uint32_t video[64 * 32];
+	uint32_t video[V_WIDTH * V_HEIGHT];
 	uint16_t opcode;
 } chip_8_t;
 
 chip_8_t *boot_chip8(char *rom_name);
 void free_chip_8();
 void emulate_cycle(chip_8_t *chip_8);
+void print_video(chip_8_t *chip_8);
 
 #endif

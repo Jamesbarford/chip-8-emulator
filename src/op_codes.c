@@ -1,5 +1,5 @@
 #include "op_codes.h"
-#include <stdint.h>
+#include "chip_8.h"
 
 #define VX(x) ((x >> 8) & 0xF)
 #define VY(y) ((y >> 4) & 0xF)
@@ -96,7 +96,7 @@ static void OP_8xy3(chip_8_t *chip_8)
 
 static void OP_8xy4(chip_8_t *chip_8)
 {// ADD Vx Vy,  set VF = carry flag, only lower 8 bits stored in Vx
-	uint32_t result = chip_8->registers[VX(chip_8->opcode)] + chip_8->registers[VY(chip_8->opcode)];
+	uint16_t result = chip_8->registers[VX(chip_8->opcode)] + chip_8->registers[VY(chip_8->opcode)];
 	
 	chip_8->registers[0xF] = result > 0xFF ? 1 : 0;
 	chip_8->registers[VX(chip_8->opcode)] = result & 0xFF;
@@ -115,7 +115,7 @@ static void OP_8xy6(chip_8_t *chip_8)
 {// Vx = Vx SHR1 if the least significant bit of Vx is 1. Then Vx is divided by 2	
 	uint8_t Vx = VX(chip_8->opcode);
 	
-	chip_8->registers[0xF] = chip_8->registers[Vx] & 0x1;
+	chip_8->registers[0xF] = (chip_8->registers[Vx] & 0x1);
 	chip_8->registers[Vx] /= 2;
 }
 
