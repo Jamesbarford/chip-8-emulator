@@ -4,6 +4,8 @@ Simple Chip 8 emulator
 
 __compile__:
 ```
+mkdir -p output
+
 make
 ```
 
