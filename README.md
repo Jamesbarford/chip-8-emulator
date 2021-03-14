@@ -13,7 +13,7 @@ run:
 ```
 
 Dependencies:
-- requires SLD2 to be installed
+- requires SDL2 to be installed
 
 Resources used:
 - http://devernay.free.fr/hacks/chip8/C8TECH10.HTM -> indepth details about the emulator
