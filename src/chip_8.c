@@ -24,10 +24,10 @@ uint8_t fontset[FONTSET_SIZE] =
 
 void init(chip_8_t *chip_8)
 {
-	chip_8->pc     = MEM_START_ADDR;
+	chip_8->pc = MEM_START_ADDR;
 	chip_8->opcode = 0;
-	chip_8->I      = 0;
-	chip_8->sp     = 0;
+	chip_8->I = 0;
+	chip_8->sp = 0;
 	
 	memset(chip_8->video, 0, sizeof(chip_8->video));
 	memset(chip_8->memory, 0, sizeof(chip_8->memory));
@@ -51,13 +51,13 @@ void load_rom(char *filename, chip_8_t *chip_8)
 
 	if ((fd = open(filename, O_RDONLY)) == -1)
 	{
-		fprintf(stderr, "Failed to open file: %s", strerror(errno));
+		fprintf(stderr, "Failed to open file: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	if ((stat(filename, &file_stat) == -1))
 	{
-		fprintf(stderr, "Failed to get file stats %s", strerror(errno));
+		fprintf(stderr, "Failed to get file stats: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
