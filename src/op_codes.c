@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 #include "op_codes.h"
 #include "chip_8.h"
 
@@ -344,5 +346,5 @@ void call_instruction(chip_8_t *chip_8)
 	}
 
 invalid:
-	printf("Unknown opcode: 0x%04X\n", chip_8->opcode); 
+	printf("Unknown opcode: 0x%" PRIX16 "\n", chip_8->opcode); 
 }

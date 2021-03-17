@@ -11,3 +11,4 @@ charset = utf-8
 
 [{Makefile, Dockerfile}]
 indent_style = tab
+indent_size = 2
