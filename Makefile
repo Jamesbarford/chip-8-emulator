@@ -1,8 +1,8 @@
 OBJ_DIR	= ./output
 SRC = ./src
 TARGET = chip_8.out
-CFLAGS = -std=gnu17 -Wall -Werror -Wextra -Wpedantic -Wno-shadow -O2
-CC = gcc
+CFLAGS = -std=c11 -Wall -Werror -Wextra -Wpedantic -Wno-shadow -O2
+CC = cc
 
 ${OBJ_DIR}/%.o: ${SRC}/%.c
 	${CC} -c ${CFLAGS} -o $@ $<
