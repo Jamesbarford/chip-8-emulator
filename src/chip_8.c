@@ -84,22 +84,9 @@ void emulate_cycle(chip_8_t *chip_8) {
 	//		--sound_timer;
 }
 
-chip_8_t *boot_chip8(char *rom_name) {
-	chip_8_t *c;
-
-	if ((c = (chip_8_t *)malloc(sizeof(chip_8_t))) == NULL) {
-		fprintf(stderr, "Failed to allocate memory for chip_8_t: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	init(c);
-	load_rom(rom_name, c);
-
-	return c;
-}
-
-void free_chip_8(chip_8_t *c) {
-	if (c) free(c);
+void boot_chip8(chip_8_t *chip_8, char *rom_name) {
+	init(chip_8);
+	load_rom(rom_name, chip_8);
 }
 
 void print_video(chip_8_t *chip_8) {

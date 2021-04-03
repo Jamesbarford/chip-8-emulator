@@ -46,8 +46,7 @@ typedef struct chip_8_t {
 	uint16_t opcode;
 } chip_8_t;
 
-chip_8_t *boot_chip8(char *rom_name);
-void free_chip_8();
+void boot_chip8(chip_8_t *chip_8, char *rom_name);
 void emulate_cycle(chip_8_t *chip_8);
 void print_video(chip_8_t *chip_8);
 
