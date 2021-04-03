@@ -6,10 +6,8 @@
 #define SCALE 20
 #define DELAY 3000
 
-int main(int argc, char **argv)
-{
-	if (argc != 2)
-	{
+int main(int argc, char **argv) {
+	if (argc != 2) {
 		fprintf(stderr, "Must provide name of rom to run\n");
 		exit(EXIT_FAILURE);
 	}
@@ -23,16 +21,14 @@ int main(int argc, char **argv)
 	BOOL terminate = False;
 	gettimeofday(&start, NULL);
 
-	while (terminate == False)
-	{
+	while (terminate == False) {
 		terminate = handle_input(chip_8->keypad);
 
 		gettimeofday(&stop, NULL);
 
 		double difference = (stop.tv_sec - start.tv_sec) * 10000000 + stop.tv_usec - start.tv_usec;
 
-		if (difference > DELAY)
-		{
+		if (difference > DELAY) {
 			start = stop;
 
 			emulate_cycle(chip_8);

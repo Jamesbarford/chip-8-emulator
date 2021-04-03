@@ -1,11 +1,9 @@
 #include "display.h"
 
-display_t *alloc_display(char *win_name, uint32_t win_width, uint32_t win_height, uint32_t texture_width, uint32_t texture_height)
-{
+display_t *alloc_display(char *win_name, uint32_t win_width, uint32_t win_height, uint32_t texture_width, uint32_t texture_height) {
 	display_t *display;
 
-	if ((display = (display_t *)malloc(sizeof(display_t))) == NULL)
-	{
+	if ((display = (display_t *)malloc(sizeof(display_t))) == NULL) {
 		fprintf(stderr, "Failed to allocate memory for display: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);	
 	}
@@ -19,16 +17,14 @@ display_t *alloc_display(char *win_name, uint32_t win_width, uint32_t win_height
 	return display;
 }
 
-void update_display(display_t *display, uint32_t *video, int pitch)
-{
+void update_display(display_t *display, uint32_t *video, int pitch) {
 	SDL_UpdateTexture(display->texture, NULL, video, pitch);
 	SDL_RenderClear(display->renderer);
 	SDL_RenderCopy(display->renderer, display->texture, NULL, NULL);
 	SDL_RenderPresent(display->renderer);
 }
 
-void free_display(display_t *display)
-{
+void free_display(display_t *display) {
 	SDL_DestroyRenderer(display->renderer);
 	SDL_DestroyTexture(display->texture);
 	SDL_DestroyWindow(display->window);
@@ -37,20 +33,15 @@ void free_display(display_t *display)
 	SDL_Quit();
 }
 
-BOOL handle_input(uint8_t *keys)
-{
+BOOL handle_input(uint8_t *keys) {
 	BOOL terminate = False;
 	SDL_Event evt;
 
-	while (SDL_PollEvent(&evt))
-	{
-		switch (evt.type)
-		{
+	while (SDL_PollEvent(&evt)) {
+		switch (evt.type) {
 			case SDL_QUIT: terminate = True; break;
-			case SDL_KEYDOWN:
-			{
-				switch (evt.key.keysym.sym)
-				{
+			case SDL_KEYDOWN: {
+				switch (evt.key.keysym.sym) {
 					case SDLK_ESCAPE: terminate = True; break;
 					case SDLK_x: keys[0] = 1; break;
 					case SDLK_1: keys[1] = 1; break;
@@ -72,10 +63,8 @@ BOOL handle_input(uint8_t *keys)
 				}
 				break;
 			}
-			case SDL_KEYUP:
-			{
-				switch (evt.key.keysym.sym)
-				{
+			case SDL_KEYUP: {
+				switch (evt.key.keysym.sym) {
 					case SDLK_ESCAPE: terminate = True; break;
 					case SDLK_x: keys[0] = 0; break;
 					case SDLK_1: keys[1] = 0; break;
